@@ -4,24 +4,24 @@ import 'package:gallery_with_rest_api/models/gallery_item.dart';
 
 abstract class GalleryCrudEvent {}
 
-class GalleryGetEvent extends GalleryCrudEvent {}
+class FetchGalleryItems extends GalleryCrudEvent {}
 
 
-class GalleryGetByIdEvent extends GalleryCrudEvent {
+class FetchGalleryItem extends GalleryCrudEvent {
     final String id;
 
-  GalleryGetByIdEvent({
+  FetchGalleryItem({
     required this.id
   });
 }
 
-class GalleryCreateEvent extends GalleryCrudEvent {
+class CreateGalleryItem extends GalleryCrudEvent {
   final String description;
   final String filename;
   final String filetype;
   final Uint8List imageBytes;
 
-  GalleryCreateEvent({
+  CreateGalleryItem({
     required this.description,
     required this.filename,
     required this.filetype,
@@ -29,18 +29,18 @@ class GalleryCreateEvent extends GalleryCrudEvent {
     });
 }
 
-class GalleryEditEvent extends GalleryCrudEvent {
+class EditGalleryItem extends GalleryCrudEvent {
   final  GalleryItem galleryItem;
 
-  GalleryEditEvent({
+  EditGalleryItem({
     required this.galleryItem
   });
 }
 
-class GalleryDeleteEvent extends GalleryCrudEvent {
+class DeleteGalleryItem extends GalleryCrudEvent {
   final String id;
 
-  GalleryDeleteEvent({
+  DeleteGalleryItem({
     required this.id
   });
 }

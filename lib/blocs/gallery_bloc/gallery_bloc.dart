@@ -4,17 +4,17 @@ import 'package:gallery_with_rest_api/blocs/gallery_bloc/event/gallery_bloc_even
 import 'package:gallery_with_rest_api/blocs/gallery_bloc/state/gallery_bloc_state.dart';
 import 'package:gallery_with_rest_api/data_access/gallery_entry_data_handler.dart';
 import 'package:gallery_with_rest_api/models/gallery_item.dart';
+import 'package:gallery_with_rest_api/services/locators.dart';
 
-class GalleryChangeBloc extends Bloc<GalleryCrudEvent, GalleryCrudState> {
-  late GalleryEntryDataHandler _handler;
+class GalleryItemCrudBloc extends Bloc<GalleryCrudEvent, GalleryCrudState> {
 
-  GalleryChangeBloc() : super(GalleryCrudState()) {
-    _handler = GalleryEntryDataHandler();
+  GalleryItemCrudBloc() : super(GalleryCrudState(state: CrudStates.initial)) {
     List<GalleryItem> galleryItems = [];
 
-    // Create event
-    on<GalleryCreateEvent>((event, emit) async {
-      await _handler.create(GalleryItem(
+    // Create event handler
+    on<CreateGalleryItem>((event, emit) async {
+      GalleryItemDataHandler handler = locator<GalleryItemDataHandler>(); // Inject handler
+      await handler.create(GalleryItem(
         description: event.description,
         filename: event.filename,
         filetype: event.filetype,
@@ -22,27 +22,50 @@ class GalleryChangeBloc extends Bloc<GalleryCrudEvent, GalleryCrudState> {
       ));
     });
 
-    // Edit event
-    on<GalleryEditEvent>((event, emit) async {
-      await _handler.edit(event.galleryItem);
+    // Edit event handler
+    on<EditGalleryItem>((event, emit) async {
+      GalleryItemDataHandler handler = locator<GalleryItemDataHandler>(); // Inject handler
+      await handler.edit(event.galleryItem);
     });
 
-    // Get all event
-    on<GalleryGetEvent>((event, emit) async {
-      galleryItems = await _handler.getAll();
-      emit(DisplayGalleryItems(galleryItems: galleryItems));
+    // Get all event handler
+    on<FetchGalleryItems>((event, emit) async {
+      emit(DisplayGalleryItems(state: CrudStates.loading)); // Emit loading state
+      GalleryItemDataHandler handler = locator<GalleryItemDataHandler>(); // Inject handler
+      try {
+        galleryItems = await handler.getAll();
+        emit(DisplayGalleryItems(
+            state: CrudStates.complete, 
+            galleryItems: galleryItems)
+        );
+      }
+      catch(ex) {
+        emit(DisplayGalleryItems(state: CrudStates.error)); // Emit error state
+      }
     });
 
-    // Get by id
-    on<GalleryGetByIdEvent>((event, emit) async {
-      GalleryItem galleryItem = await _handler.get(event.id);
-      emit(DisplayGalleryItem(galleryItem: galleryItem));
+    // Get by id handler
+    on<FetchGalleryItem>((event, emit) async {
+      emit(DisplayGalleryItem(state: CrudStates.loading)); // Emit loading state
+      GalleryItemDataHandler handler = locator<GalleryItemDataHandler>(); // Inject handler
+      try {
+        GalleryItem galleryItem = await handler.get(event.id);
+        emit(
+          DisplayGalleryItem(
+            state: CrudStates.complete, 
+            galleryItem: galleryItem)
+        );
+      }
+      catch (ex) {
+        emit(DisplayGalleryItem(state: CrudStates.error)); // Emit error state
+      }
     });
 
-    // Delete event
-    on<GalleryDeleteEvent>((event, emit) async {
-      await _handler.delete(event.id);
-      add(GalleryGetEvent());
+    // Delete event handler
+    on<DeleteGalleryItem>((event, emit) async {
+      GalleryItemDataHandler handler = locator<GalleryItemDataHandler>(); // Inject handler
+      await handler.delete(event.id);
+      add(FetchGalleryItems()); // 
     });
   }
 }

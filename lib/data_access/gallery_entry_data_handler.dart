@@ -4,30 +4,36 @@ import 'package:gallery_with_rest_api/data_access/api_client.dart';
 // import 'package:gallery_with_rest_api/data_access/exceptions/missing_uri_exception.dart';
 import 'package:gallery_with_rest_api/models/gallery_item.dart';
 
-class GalleryEntryDataHandler {
-  final ApiClient _apiClient = ApiClient(baseUrl: "127.0.0.1:7090/api");
+/// Responsible for data handling for GalleryItem
+class GalleryItemDataHandler {
+  final ApiClient _apiClient = ApiClient(baseUrl: "https://127.0.0.1:7090/api");
   final String _context = "GalleryEntry";
   
-  GalleryEntryDataHandler();
+  GalleryItemDataHandler();
 
+  /// Gets all the gallery items from external API
   Future<List<GalleryItem>> getAll() async {
     var response = await _apiClient.get(_context);
     Iterable jsonArray = json.decode(response.body);
-    List<GalleryItem> galleryItems = List<GalleryItem>.from(jsonArray.map((jsonObject)=> GalleryItem.fromJson(jsonObject)));
+    List<GalleryItem> galleryItems = List<GalleryItem>.from(
+      jsonArray.map((jsonObject)=> GalleryItem.fromJson(jsonObject)) // Turn json array into Gallery Item objects
+      );
     return galleryItems;
   }
 
+  /// Gets a gallery item from external API
   Future<GalleryItem> get(String id) async {
     var response = await _apiClient.get("$_context/$id");
     GalleryItem galleryItem = GalleryItem.fromJson(response.body);
     return galleryItem;
   }
 
+  /// Saves a gallery item on external API
   Future<GalleryItem> create(GalleryItem galleryItem) async {
     Map<String, dynamic> jsonBody = galleryItem.toMap();
     var response = await _apiClient.post(_context, jsonBody);
 
-    GalleryItem createdGalleryItem = GalleryItem.fromJson(response.body);
+    GalleryItem createdGalleryItem = GalleryItem.fromJson(response.body); // Should return the created model
     return createdGalleryItem;
     /*
     // Check for Uri header
@@ -44,14 +50,16 @@ class GalleryEntryDataHandler {
     }*/
   }
 
+  /// Updates a gallery items on external API
   Future<bool> edit(GalleryItem galleryItemChanges) async {
     Map<String, dynamic> jsonBody = galleryItemChanges.toMap();
-    var response = await _apiClient.put("$_context/${galleryItemChanges.id}", jsonBody);
+    var response = await _apiClient.put("$_context/${galleryItemChanges.id}", jsonBody); // Saving response for easy extension refactor of the method
     return true;
   }
   
+  /// Deletes a gallery items on external API
   Future<bool> delete(String id) async {
-    var response = await _apiClient.delete("$_context/${id}");
+    var response = await _apiClient.delete("$_context/$id"); // Saving response for easy extension refactor of the method
     return true;
   }
 }
