@@ -7,17 +7,31 @@ import 'package:gallery_with_rest_api/blocs/gallery_bloc/event/gallery_bloc_even
 import 'package:gallery_with_rest_api/blocs/gallery_bloc/gallery_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
-class GalleryItemEditorDialog extends StatelessWidget {
+class GalleryItemEditorDialog extends StatefulWidget {
+  // final String? _filename;
+  // final String? _description; 
+  
+  // const GalleryItemEditorDialog({super.key, String? filename, String? description}) :
+  //   _filename = filename ?? "",
+  //   _description = description ?? "";
+  
+  
+  @override
+  State<GalleryItemEditorDialog> createState() => _GalleryItemEditorDialogState();
+
+}
+class _GalleryItemEditorDialogState extends State<GalleryItemEditorDialog> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  late XFile selectedImage;
-  late Uint8List imageBytes; 
+  late XFile? selectedImage = null;
+  late Uint8List imageBytes = Uint8List(0); 
   final TextEditingController _filenameFieldController = TextEditingController();
   final TextEditingController _descriptionFieldController = TextEditingController();
 
-  GalleryItemEditorDialog({super.key, String? filename, String? description}) {
-    _filenameFieldController.value = TextEditingValue(text: filename ?? "");
-    _descriptionFieldController.value = TextEditingValue(text: description ?? "");
+  _GalleryItemEditorDialogState({String? filename, String? description}) {
+    _filenameFieldController.text = filename ?? "";
+    _descriptionFieldController.text = description ?? "";
   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +43,22 @@ class GalleryItemEditorDialog extends StatelessWidget {
           key: _formKey,
           child: Column(
             children: <Widget>[
-              Image.memory(imageBytes), // Display chosen image
+              FutureBuilder(
+                future: selectedImage?.readAsBytes(), 
+                builder: (context, snapshot) {
+                  if(snapshot.hasData) {
+                    return Image.memory(imageBytes);
+                  }
+                  return const Text("Please select image");
+                }
+              ),
               ElevatedButton(
                 onPressed: () async {
                   var pickedImage = await Utilities.pickImageFromGallery();
                   if(pickedImage != null) {
                     selectedImage = pickedImage;
+                    imageBytes = await pickedImage.readAsBytes();
+                    setState(() {});
                   }
                 },
                 child: const Text("Pick image"),
@@ -72,7 +96,7 @@ class GalleryItemEditorDialog extends StatelessWidget {
                       CreateGalleryItem(
                         description: _descriptionFieldController.text,
                         filename: _filenameFieldController.text,
-                        filetype: selectedImage.name.split('.').last, // Get filetype from filename
+                        filetype: selectedImage!.name.split('.').last, // Get filetype from filename
                         imageBytes: imageBytes,
                       ),
                     );

@@ -24,7 +24,7 @@ class GalleryItem {
     result.addAll({'description': description});
     result.addAll({'filename': filename});
     result.addAll({'filetype': filetype});
-    result.addAll({'imageBytes': imageBytes});
+    result.addAll({'imageBytes': base64.encode(imageBytes)});
 
     return result;
   }
@@ -35,7 +35,7 @@ class GalleryItem {
       description: map["description"] ?? "", 
       filename: map["filename"] ?? "", 
       filetype: map["filetype"] ?? "", 
-      imageBytes: map["imageBytes"] ?? Uint8List
+      imageBytes: base64Decode(map["imageBytes"])
     );
   }
 

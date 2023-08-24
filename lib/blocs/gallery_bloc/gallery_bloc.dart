@@ -8,7 +8,7 @@ import 'package:gallery_with_rest_api/services/locators.dart';
 
 class GalleryItemCrudBloc extends Bloc<GalleryCrudEvent, GalleryCrudState> {
 
-  GalleryItemCrudBloc() : super(GalleryCrudState(state: CrudStates.initial)) {
+  GalleryItemCrudBloc() : super(DisplayGalleryItems(state: CrudStates.initial)) {
     List<GalleryItem> galleryItems = [];
 
     // Create event handler
@@ -20,6 +20,16 @@ class GalleryItemCrudBloc extends Bloc<GalleryCrudEvent, GalleryCrudState> {
         filetype: event.filetype,
         imageBytes: event.imageBytes
       ));
+      emit(DisplayGalleryItems(state: CrudStates.loading)); // Emit loading state
+      try {
+        emit(DisplayGalleryItems(
+            state: CrudStates.complete, 
+            galleryItems: await handler.getAll())
+        );
+      }
+      catch(ex) {
+        emit(DisplayGalleryItems(state: CrudStates.error)); // Emit error state
+      }
     });
 
     // Edit event handler
@@ -65,7 +75,6 @@ class GalleryItemCrudBloc extends Bloc<GalleryCrudEvent, GalleryCrudState> {
     on<DeleteGalleryItem>((event, emit) async {
       GalleryItemDataHandler handler = locator<GalleryItemDataHandler>(); // Inject handler
       await handler.delete(event.id);
-      add(FetchGalleryItems()); // 
     });
   }
 }

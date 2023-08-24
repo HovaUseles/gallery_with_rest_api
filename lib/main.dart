@@ -1,15 +1,9 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gallery_with_rest_api/blocs/gallery_bloc/event/gallery_bloc_event.dart';
 import 'package:gallery_with_rest_api/blocs/gallery_bloc/gallery_bloc.dart';
-import 'package:gallery_with_rest_api/models/gallery_item.dart';
 import 'package:gallery_with_rest_api/services/locators.dart';
+import 'package:gallery_with_rest_api/widgets/gallery_item_editor_dialog.dart';
 import 'package:gallery_with_rest_api/widgets/gallery_item_list.dart';
-import 'package:image_picker/image_picker.dart';
-
-import 'Utilities/utilities.dart';
 
 void main() {
   setupLocator();
@@ -53,6 +47,7 @@ class BulletinBoardPage extends StatelessWidget {
       ),
       body: const GalleryItemList(),
       floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 5),
@@ -63,7 +58,15 @@ class BulletinBoardPage extends StatelessWidget {
                 showDialog(
                   context: context,
                   builder: (context) {
-                    return Dialog();
+                    // Error if Dialog context does not have its own BlocProvider, Ask Kris
+                    return MultiBlocProvider(
+                      providers: [
+                        BlocProvider<GalleryItemCrudBloc>(
+                          create: (context) => GalleryItemCrudBloc(),
+                        ),
+                      ],
+                      child: GalleryItemEditorDialog()
+                    );
                   }
                 ),
               },

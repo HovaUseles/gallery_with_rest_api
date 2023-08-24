@@ -15,10 +15,10 @@ class GalleryItemList extends StatelessWidget {
 
     return BlocBuilder<GalleryItemCrudBloc, GalleryCrudState>(
       builder: (BuildContext context, GalleryCrudState state) {
+        if (state.state == CrudStates.initial) {
+          crudBloc.add(FetchGalleryItems()); // Fetch on initial
+        }
         if (state is DisplayGalleryItems) {
-          if (state.state == CrudStates.initial) {
-            crudBloc.add(FetchGalleryItems()); // Fetch on initial
-          }
           if (state.state == CrudStates.loading) {
             return const Center(
               child: CircularProgressIndicator(),
@@ -81,5 +81,12 @@ class GalleryItemList extends StatelessWidget {
         return const Text("No data");
       },
     );
+    // Center(
+    //   child: IconButton(
+    //       onPressed: () {
+    //         crudBloc.add(FetchGalleryItems());
+    //       },
+    //       icon: const Icon(Icons.refresh)),
+    // )
   }
 }
