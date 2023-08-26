@@ -78,7 +78,7 @@ class MainPage extends StatelessWidget {
                   MaterialPageRoute(builder: (context) {
                     return BlocProvider.value(
                       value: crudBloc, 
-                      child: BulletinBoardPage(),
+                      child: const BulletinBoardPage(),
                     ) ;
                   }),
                 );

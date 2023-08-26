@@ -7,7 +7,7 @@ class ApiClient {
   late int _defaultTimeout;
 
   ApiClient({required this.baseUrl, int? defaultTimeout}) {
-    _defaultTimeout = defaultTimeout ?? 15;
+    _defaultTimeout = defaultTimeout ?? 5;
   }
 
   /// Generic GET request

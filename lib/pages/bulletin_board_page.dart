@@ -38,6 +38,23 @@ class BulletinBoardPage extends StatelessWidget {
         }
         return const Text("No Data");
       }),
+      floatingActionButton: FloatingActionButton(
+        tooltip: "Reset",
+        onPressed: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return BlocProvider.value(
+                  value: crudBloc,
+                  child: const BulletinBoardPage(),
+                );
+              },
+            ),
+          );
+        },
+        child: const Icon(Icons.restart_alt),
+      ),
     );
   }
 }
