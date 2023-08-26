@@ -52,27 +52,14 @@ class GalleryItemList extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 20),
                   child: const Icon(Icons.delete),
                 ),
-                child: GestureDetector(
-                  // onTap: () {
-                  //   showDialog(
-                  //     context: context,
-                  //     builder: (context) {
-                  //       return Dialog(
-                  //         shape: const RoundedRectangleBorder(
-                  //             borderRadius: BorderRadius.all(Radius.elliptical(5, 5))),
-                  //         child: ImageDetails(imageItem),
-                  //       );
-                  //     },
-                  //   );
-                  // },
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      radius: 56, // Image radius
-                      backgroundImage: MemoryImage(imageItem.imageBytes),
-                    ),
-                    title: Text(imageItem.filename),
-                    subtitle: Text(imageItem.filetype),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    radius: 56, // Image radius
+                    backgroundImage: MemoryImage(imageItem.imageBytes),
                   ),
+                  title: Text(imageItem.filename),
+                  subtitle: Text(imageItem.description),
+                  trailing: Text(imageItem.filetype),
                 ),
               );
             },

@@ -11,9 +11,9 @@ class ApiClient {
   }
 
   /// Generic GET request
-   Future<http.Response> get(String endpoint, {int? timeout}) async {
+  Future<http.Response> get(String endpoint, {int? timeout}) async {
     int requestTimeout = timeout ?? _defaultTimeout; // set the request timeout variable
-    Uri url = Uri.parse('$baseUrl/$endpoint'); 
+    Uri url = Uri.parse('$baseUrl/$endpoint');
     final response = await http.get(url).timeout(Duration(seconds: requestTimeout));
     return response;
   }

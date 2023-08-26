@@ -1,14 +1,16 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:gallery_with_rest_api/data_access/api_client.dart';
-// import 'package:gallery_with_rest_api/data_access/exceptions/missing_uri_exception.dart';
 import 'package:gallery_with_rest_api/models/gallery_item.dart';
+import 'package:localstore/localstore.dart';
 
 /// Responsible for data handling for GalleryItem
 class GalleryItemDataHandler {
-  // final ApiClient _apiClient = ApiClient(baseUrl: "https://192.168.1.245:7090/api");
-  final ApiClient _apiClient = ApiClient(baseUrl: "https://04b5-80-208-67-11.ngrok.io/api");
+  final ApiClient _apiClient = ApiClient(baseUrl: "http://10.0.2.2:27016/api");
+  // final ApiClient _apiClient = ApiClient(baseUrl: "https://b089-80-208-67-11.ngrok.io/api");
   final String _entityContext = "GalleryEntry";
+  final db = Localstore.instance;
   
   GalleryItemDataHandler();
 
@@ -18,12 +20,34 @@ class GalleryItemDataHandler {
       var response = await _apiClient.get(_entityContext);
       Iterable jsonArray = json.decode(response.body);
       List<GalleryItem> galleryItems = List<GalleryItem>.from(
-        jsonArray.map((jsonObject)=> GalleryItem.fromMap(jsonObject)) // Turn json array into Gallery Item objects
+        jsonArray.map((jsonObject) => GalleryItem.fromMap(jsonObject)) // Turn json array into Gallery Item objects
         );
+      
+      // Caching items to local db, to enable offline use
+      await db.collection(_entityContext).delete(); // Empty existing cache
+      for (int i = 0; i < galleryItems.length; i++) {
+        var galleryItem = galleryItems[i];
+        final id = db.collection(_entityContext).doc().id; // Returns a new Id
+        var map = galleryItem.toMap(); // Get item map
+        // Save to local storage
+        await db.collection(_entityContext).doc(id).set(map);
+      }
       return galleryItems;
     }
+    // on(TimeoutException, ) {
     catch (ex) {
-      return [];
+      // Get data from local storage
+      var localItems = await db.collection(_entityContext).get();
+      if (localItems == null) {
+        return [];
+      }
+      List<GalleryItem> galleryItems = [];
+      // map localstorage items to GalleryItems
+      for (int i = 0; i < localItems.entries.length; i++) {
+        var map = localItems[localItems.entries.elementAt(i).key];
+        galleryItems.add(GalleryItem.fromMap(map));
+      }
+      return galleryItems; // Return cached data
     }
   }
 
@@ -59,13 +83,13 @@ class GalleryItemDataHandler {
   /// Updates a gallery items on external API
   Future<bool> edit(GalleryItem galleryItemChanges) async {
     Map<String, dynamic> jsonBody = galleryItemChanges.toMap();
-    var response = await _apiClient.put("$_entityContext/${galleryItemChanges.id}", jsonBody); // Saving response for easy extension refactor of the method
+    await _apiClient.put("$_entityContext/${galleryItemChanges.id}", jsonBody); // Saving response for easy extension refactor of the method
     return true;
   }
   
   /// Deletes a gallery items on external API
   Future<bool> delete(String id) async {
-    var response = await _apiClient.delete("$_entityContext/$id"); // Saving response for easy extension refactor of the method
+    await _apiClient.delete("$_entityContext/$id"); // Saving response for easy extension refactor of the method
     return true;
   }
 }

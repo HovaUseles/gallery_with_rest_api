@@ -19,4 +19,10 @@ class Utilities{
     return pickedFile;
   }
 
+  /// Opens the image picker and returns the picked image if any was picked
+  static Future<XFile?> takeImageWithCamera() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    return pickedFile;
+  }
 }
